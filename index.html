@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Alergeni Vanagon Cafe</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Poppins:wght@600;700&display=swap">
+<style>
+/* Layout: two-tone van band on top (body color + trim stripe), then one narrow column of shelf-tag cards with a filter panel above. */
+:root {
+  --bg: #EEF2EE;
+  --surface: #FFFFFF;
+  --ink: #152E2D;
+  --muted: #526664;
+  --line: #D3DCD7;
+  --band: #1D4C56;
+  --band-ink: #F3EFE3;
+  --stripe: #E0A63A;
+  --accent: #1C6C76;
+  --chip-bg: #FAEBCB;
+  --chip-ink: #5E3D05;
+  --info-bg: #DDEBEC;
+  --info-ink: #174A52;
+  --warn-bg: #FCF1DA;
+  --warn-line: #E9C885;
+  --on-pressed: #FFFFFF;
+  --font-display: "Poppins", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Verdana", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101A19; --surface: #182322; --ink: #E6EEEB; --muted: #9DAFAB; --line: #2A3836;
+    --band: #163D45; --band-ink: #F3EFE3; --stripe: #D9A139; --accent: #6CC0C8;
+    --chip-bg: #3A2E14; --chip-ink: #F4D592; --info-bg: #1D3438; --info-ink: #A9D9DE;
+    --warn-bg: #2E2614; --warn-line: #6B5420; --on-pressed: #101A19;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101A19; --surface: #182322; --ink: #E6EEEB; --muted: #9DAFAB; --line: #2A3836;
+  --band: #163D45; --band-ink: #F3EFE3; --stripe: #D9A139; --accent: #6CC0C8;
+  --chip-bg: #3A2E14; --chip-ink: #F4D592; --info-bg: #1D3438; --info-ink: #A9D9DE;
+  --warn-bg: #2E2614; --warn-line: #6B5420; --on-pressed: #101A19;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--band);
+}
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* Header band */
+.band { background: var(--band); color: var(--band-ink); border-bottom: 6px solid var(--stripe); }
+.band .wrap { padding-block: 28px 24px; display: grid; gap: 6px; }
+.mark {
+  font-family: var(--font-display); font-weight: 600; font-size: 13px;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--stripe);
+}
+h1 {
+  margin: 0; font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(28px, 7.5vw, 40px); line-height: 1.1; text-wrap: balance;
+}
+.sub { margin: 0; font-size: 16px; opacity: 0.85; }
+.meta { margin: 6px 0 0; font-size: 14px; opacity: 0.75; font-variant-numeric: tabular-nums; }
+
+main.wrap { padding-block: 20px 40px; display: grid; gap: 24px; }
+
+.notice {
+  background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 12px;
+  padding: 14px 16px; display: grid; gap: 4px;
+}
+.notice strong { font-size: 17px; }
+.notice p { margin: 0; color: var(--ink); }
+
+/* Filters */
+.panel { display: grid; gap: 12px; }
+.label {
+  margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 13px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+}
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.fchip {
+  font: inherit; font-size: 15px; font-weight: 700; color: var(--ink);
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: 999px;
+  padding: 8px 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  min-height: 40px;
+}
+.fchip:hover { border-color: var(--accent); }
+.fchip:focus-visible, .search:focus-visible, .reset:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.fchip[aria-pressed="true"] { background: var(--ink); color: var(--on-pressed); border-color: var(--ink); }
+.fchip .x { display: none; font-size: 13px; }
+.fchip[aria-pressed="true"] .x { display: inline; }
+.search {
+  width: 100%; font: inherit; font-size: 16px; color: var(--ink);
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px;
+  padding: 11px 14px; min-height: 46px;
+}
+.search::placeholder { color: var(--muted); }
+.status { margin: 0; font-size: 15px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+.reset {
+  font: inherit; font-size: 15px; font-weight: 700; color: var(--accent);
+  background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
+
+/* Product list */
+.group { display: grid; gap: 12px; }
+.group h2 {
+  margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 20px;
+  display: flex; align-items: baseline; gap: 8px;
+}
+.group h2 span { font-family: var(--font-body); font-weight: 400; font-size: 15px; color: var(--muted); }
+.list { display: grid; gap: 10px; }
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 16px; display: grid; gap: 10px; min-width: 0;
+}
+.card h3 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 18px; line-height: 1.25; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  font-size: 14px; font-weight: 700; line-height: 1.2; padding: 5px 10px; border-radius: 6px;
+  background: var(--chip-bg); color: var(--chip-ink);
+}
+.tag.info { background: var(--info-bg); color: var(--info-ink); font-weight: 400; }
+.ingr { margin: 0; font-size: 15px; color: var(--muted); overflow-wrap: anywhere; }
+.ingr b { color: var(--ink); }
+.ingr .lbl { font-weight: 700; color: var(--ink); }
+.ingr + .ingr { margin-top: -4px; }
+.ingr strong { color: var(--ink); font-weight: 700; }
+.warn {
+  margin: 0; font-size: 15px; background: var(--warn-bg); border: 1px solid var(--warn-line);
+  border-radius: 8px; padding: 10px 12px;
+}
+.empty {
+  margin: 0; padding: 20px 16px; text-align: center; color: var(--muted);
+  border: 1.5px dashed var(--line); border-radius: 12px;
+}
+
+/* Legend + footer */
+.legend { display: grid; gap: 10px; }
+.legend ul {
+  margin: 0; padding: 0; list-style: none; display: grid; gap: 6px 16px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); font-size: 15px;
+}
+.legend li { display: flex; gap: 6px; min-width: 0; }
+.legend li span { color: var(--muted); }
+footer.wrap { padding-block: 0 32px; font-size: 14px; color: var(--muted); display: grid; gap: 6px; }
+footer p { margin: 0; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body style="margin:0">
+
+<header class="band">
+  <div class="wrap">
+    <div class="mark">Vanagon Cafe</div>
+    <h1>Alergeni și ingrediente</h1>
+    <p class="sub">Allergens &amp; ingredients</p>
+    <p class="meta" id="meta"></p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="notice" role="note">
+    <strong>Ai o alergie? Spune-ne înainte de comandă.</strong>
+    <p>Lista conține alergenii declarați de producător, inclusiv avertizările pentru urme. În lista de ingrediente, alergenii sunt scriși îngroșat.</p>
+  </div>
+
+  <section class="panel" aria-labelledby="f-title">
+    <h2 class="label" id="f-title">Am alergie la</h2>
+    <div class="chips" id="filters"></div>
+    <label class="label" for="q" style="margin-top:4px">Caută un produs</label>
+    <input class="search" id="q" type="search" placeholder="ex. brownie, quiche" autocomplete="off">
+    <p class="status" id="status" aria-live="polite"></p>
+  </section>
+
+  <div id="groups" style="display:grid;gap:28px"></div>
+
+  <section class="legend" aria-labelledby="l-title">
+    <h2 class="label" id="l-title">Cei 14 alergeni din Reg. (UE) 1169/2011 · Anexa II</h2>
+    <ul id="legend"></ul>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>Informațiile provin din declarațiile de conformitate ale furnizorului de patiserie.</p>
+  <p>Nu găsești un produs aici? Întreabă-ne la bar.</p>
+</footer>
+
+<script>
+// ==== DATE: actualizează aici ====
+const UPDATED = "2026-10-24";
+
+// Ordinea oficială din Anexa II
+const ALLERGENS = [
+  ["gluten",   "Gluten",            "Gluten (cereals)"],
+  ["crustacee","Crustacee",         "Crustaceans"],
+  ["oua",      "Ouă",               "Eggs"],
+  ["peste",    "Pește",             "Fish"],
+  ["arahide",  "Arahide",           "Peanuts"],
+  ["soia",     "Soia",              "Soy"],
+  ["lapte",    "Lapte",             "Milk"],
+  ["nuci",     "Nuci",              "Tree nuts"],
+  ["telina",   "Țelină",            "Celery"],
+  ["mustar",   "Muștar",            "Mustard"],
+  ["susan",    "Susan",             "Sesame"],
+  ["sulfiti",  "Sulfiți",           "Sulphites"],
+  ["lupin",    "Lupin",             "Lupin"],
+  ["moluste",  "Moluște",           "Molluscs"]
+];
+const LEGEND_RO = { nuci: "Fructe cu coajă lemnoasă (nuci)", gluten: "Cereale cu gluten" };
+
+// cat: "dulce" sau "sarat". *text* = alergen îngroșat în ingrediente.
+const PRODUCTS = [
+  { name: "Banana Bread", cat: "dulce", allergens: ["gluten","oua","lapte"],
+    ingredients: "banane, *făină*, zahăr, *lapte* 3,5% UHT, ulei, *ouă*, bicarbonat de sodiu" },
+  { name: "Brownie", cat: "dulce", allergens: ["gluten","oua","lapte","arahide"],
+    recipes: [
+      ["Rețeta cu arahide", "*făină*, *unt*, zahăr, *ou*, ciocolată neagră, *ciocolată cu lapte*, *arahide*"],
+      ["Rețeta cu mascarpone", "*făină*, *unt*, zahăr, *ou*, ciocolată neagră, *ciocolată cu lapte*, *mascarpone*, *iaurt*, vanilie, amidon, colorant alimentar"]
+    ],
+    warn: "Furnizorul are două rețete de brownie, iar una conține arahide. Dacă ai alergie la arahide, întreabă-ne ce brownie avem azi." },
+  { name: "Vegan Carrot Muffin", cat: "dulce", allergens: ["gluten","oua","lapte","nuci"], detail: { nuci: "nucă" },
+    ingredients: "*făină*, ulei, zahăr, morcov, *nucă*, praf de copt, făină de in, scorțișoară",
+    info: ["Fără lapte și ouă în rețetă, dar producătorul avertizează pentru lapte și ouă"] },
+  { name: "Biscuiți cu merișoare și fistic", cat: "dulce", allergens: ["gluten","oua","lapte","nuci"], detail: { nuci: "fistic" },
+    ingredients: "*unt* 82%, zahăr, *ouă*, *făină*, sare, *fistic*, merișoare" },
+  { name: "Muffin cu coacăze", cat: "dulce", allergens: ["gluten","oua","lapte"],
+    ingredients: "ulei, *ouă*, apă, coacăze, zahăr, *făină*, *zer* praf, amidon, difosfat sodic, bicarbonat de sodiu, sare, gumă de xantan, sirop de glucoză, *lapte praf* degresat" },
+  { name: "Portokalopita", cat: "dulce", allergens: ["gluten","oua","lapte"],
+    ingredients: "portocală, zahăr, *foi de plăcintă*, ulei, *lapte*, *ou*, praf de copt, bicarbonat de sodiu" },
+  { name: "Tiramisu", cat: "dulce", allergens: ["gluten","oua","lapte"],
+    ingredients: "*mascarpone*, zahăr, *gălbenuș*, cafea, pișcoturi (*făină de grâu*, zahăr, *ouă* 26%, agenți de creștere, sirop de glucoză, arome naturale), coniac, pastă de vanilie",
+    info: ["Conține alcool (coniac)"] },
+  { name: "Black Forest Cookies", cat: "dulce", allergens: ["gluten","oua","lapte"],
+    ingredients: "*unt* 82%, zahăr, *făină*, cacao, amidon, praf de copt, bicarbonat de sodiu, *ciocolată albă*, vișine, pectină" },
+  { name: "Canelé", cat: "dulce", allergens: ["gluten","oua","lapte"],
+    ingredients: "*lapte*, zahăr, *ou*, *făină*, rom, *unt*, extract de vanilie, ceară de albine alimentară",
+    info: ["Conține alcool (rom)"] },
+  { name: "Almond Financiers", cat: "dulce", allergens: ["gluten","oua","lapte","nuci"], detail: { nuci: "migdale" },
+    ingredients: "*albuș de ou*, zahăr pudră, *unt*, *făină de migdale*, *făină de grâu*, miere, sare" },
+  { name: "Tahini Cookies", cat: "dulce", allergens: ["gluten","oua","lapte","nuci","susan","soia"], detail: { nuci: "migdale" },
+    ingredients: "*unt*, *făină*, *făină de migdale*, ciocolată neagră, *ciocolată cu lapte*, zahăr, *ou*, *pastă miso* (soia), bicarbonat, sare, *pastă tahini din susan* negru" },
+  { name: "Pastel de nata", cat: "dulce", allergens: ["gluten","oua","lapte"],
+    ingredients: "*făină albă de grâu*, *unt*, zahăr, *lapte de vacă*, apă, *gălbenuș de ou*, scorțișoară batoane, pastă de vanilie, sare" },
+
+  { name: "Biscuiți cu telemea și roșii uscate", cat: "sarat", allergens: ["gluten","lapte"],
+    ingredients: "*făină*, *telemea de vacă*, *unt*, roșii uscate, sare, oregano" },
+  { name: "Sărățele", cat: "sarat", allergens: ["gluten","oua","lapte","arahide"],
+    ingredients: "*telemea*, *făină*, *unt*, *smântână*, *ou*, sare, mac sau chimen" },
+  { name: "Quiche cu praz și telemea", cat: "sarat", allergens: ["gluten","oua","lapte"],
+    ingredients: "*făină de grâu*, *unt* 82%, *ou*, *smântână de gătit* 36%, *lapte* 3,5%, *telemea*, praz, roșii uscate, zahăr, sare, piper" },
+  { name: "Cheddar Scones", cat: "sarat", allergens: ["gluten","oua","lapte"],
+    ingredients: "*făină de grâu*, *cheddar*, *smântână dulce*, *ou*, zahăr, *unt*, ceapă, mărar, sare, piper, praf de copt" }
+];
+// ==== sfârșit date ====
+
+const GROUPS = [["dulce", "Dulciuri"], ["sarat", "Sărate"]];
+const ORDER = ALLERGENS.map(a => a[0]);
+const NAME = Object.fromEntries(ALLERGENS.map(a => [a[0], a[1]]));
+const selected = new Set();
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const rich = s => esc(s).replace(/\*([^*]+)\*/g, "<strong>$1</strong>");
+const fold = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+const MONTHS = ["ianuarie","februarie","martie","aprilie","mai","iunie","iulie","august","septembrie","octombrie","noiembrie","decembrie"];
+const fmtDate = iso => { const [y, m, d] = iso.split("-").map(Number); return d + " " + MONTHS[m - 1] + " " + y; };
+
+PRODUCTS.forEach(p => p.allergens.sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b)));
+
+document.getElementById("meta").textContent =
+  PRODUCTS.length + " produse · actualizat " + fmtDate(UPDATED);
+
+// Filter chips: only allergens that appear in the list
+const present = ORDER.filter(k => PRODUCTS.some(p => p.allergens.includes(k)));
+const fbox = document.getElementById("filters");
+present.forEach(k => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "fchip"; b.id = "f-" + k;
+  b.setAttribute("aria-pressed", "false");
+  b.innerHTML = '<span class="x" aria-hidden="true">✕</span>' + esc(NAME[k]);
+  b.addEventListener("click", () => {
+    selected.has(k) ? selected.delete(k) : selected.add(k);
+    b.setAttribute("aria-pressed", selected.has(k) ? "true" : "false");
+    render();
+  });
+  fbox.appendChild(b);
+});
+
+document.getElementById("legend").innerHTML = ALLERGENS.map(([k, ro, en]) =>
+  "<li><b>" + esc(LEGEND_RO[k] || ro) + "</b><span>· " + esc(en) + "</span></li>").join("");
+
+const q = document.getElementById("q");
+q.addEventListener("input", render);
+
+function card(p) {
+  const tags = p.allergens.map(k =>
+    '<span class="tag">' + esc(NAME[k]) + (p.detail && p.detail[k] ? " (" + esc(p.detail[k]) + ")" : "") + "</span>").join("");
+  const info = (p.info || []).map(t => '<span class="tag info">' + esc(t) + "</span>").join("");
+  const ingr = p.recipes
+    ? p.recipes.map(([l, t]) => '<p class="ingr"><span class="lbl">' + esc(l) + ":</span> " + rich(t) + "</p>").join("")
+    : '<p class="ingr"><span class="lbl">Ingrediente:</span> ' + rich(p.ingredients) + "</p>";
+  return '<article class="card"><h3>' + esc(p.name) + "</h3>" +
+    '<div class="tags" aria-label="Alergeni">' + tags + info + "</div>" +
+    (p.warn ? '<p class="warn">' + esc(p.warn) + "</p>" : "") + ingr + "</article>";
+}
+
+function render() {
+  const term = fold(q.value.trim());
+  const coll = new Intl.Collator("ro");
+  const visible = PRODUCTS.filter(p =>
+    !p.allergens.some(k => selected.has(k)) &&
+    (!term || fold(p.name).includes(term)));
+
+  const out = GROUPS.map(([cat, title]) => {
+    const items = visible.filter(p => p.cat === cat).sort((a, b) => coll.compare(a.name, b.name));
+    if (!items.length) return "";
+    return '<section class="group"><h2>' + esc(title) + " <span>" + items.length + "</span></h2>" +
+      '<div class="list">' + items.map(card).join("") + "</div></section>";
+  }).join("");
+
+  document.getElementById("groups").innerHTML = out ||
+    '<p class="empty">Niciun produs nu se potrivește cu filtrele alese. Întreabă-ne la bar, poate te putem ajuta.</p>';
+
+  const st = document.getElementById("status");
+  if (selected.size || term) {
+    const names = [...selected].sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b)).map(k => NAME[k].toLowerCase());
+    st.innerHTML = "<span>Se văd " + visible.length + " din " + PRODUCTS.length + " produse" +
+      (names.length ? ", fără " + esc(names.join(", ")) : "") + ".</span>" +
+      '<button type="button" class="reset" id="reset">Șterge filtrele</button>';
+    document.getElementById("reset").addEventListener("click", () => {
+      selected.clear(); q.value = "";
+      fbox.querySelectorAll(".fchip").forEach(b => b.setAttribute("aria-pressed", "false"));
+      render();
+    });
+  } else {
+    st.textContent = "Atinge un alergen ca să ascunzi produsele care îl conțin.";
+  }
+}
+render();
+</script>
+</body>
+</html>
